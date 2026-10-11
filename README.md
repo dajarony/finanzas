@@ -39,7 +39,7 @@ Abre después **http://127.0.0.1:8787**.
 - **Cuentas:** cuentas múltiples con saldo inicial y cálculo de balance según los movimientos.
 - **Deudas:** registrar y quitar saldos pendientes; se restan del patrimonio estimado.
 - **Presupuestos:** fijar límites de gasto mensuales por categoría y ver utilización/excesos.
-- **CSV:** analizar y previsualizar CSV desde el navegador, asignar columnas de fecha/importe/concepto, importar hasta 2.000 movimientos por lote; importación transaccional.
+- **CSV:** analizar y previsualizar CSV desde el navegador, asignar columnas de fecha/importe/concepto (importe con signo o columnas de cargo y abono), importar hasta 2.000 movimientos por lote; importación transaccional. Acepta importes de bancos españoles y británicos (`1.234,56`, `1,234.56`, `(12,50)`, `12,50-`, con o sin símbolo de moneda) y fechas `AAAA-MM-DD`, `DD/MM/AAAA` o `DD.MM.AAAA`. Un importe con el símbolo de otra moneda (`£` en una cuenta EUR, `€` en una GBP, o `$`) se rechaza: nunca se convierte. Las filas inválidas se muestran con su línea del archivo y el motivo, y bloquean la importación.
 - **Deduplicación:** repetir el mismo lote no vuelve a insertar sus filas. Dos pagos idénticos dentro del **mismo** lote se preservan.
 - **Backup:** exportación JSON desde la interfaz.
 - **Datos ficticios:** carga demostrativa y eliminación de cuentas, presupuestos y movimientos asociados.
@@ -52,7 +52,7 @@ Abre después **http://127.0.0.1:8787**.
 - **Sin conversiones de divisas.** El patrimonio se calcula por moneda; no hay patrimonio conjunto EUR+GBP.
 - **Deudas manuales:** los movimientos bancarios no liquidan una deuda automáticamente.
 - **Conciliación limitada:** no se verifica el saldo contra un extracto oficial ni se modelan transferencias internas. Los importes de entrada deben coincidir con los del documento.
-- **CSV ambiguos:** identifica algunas cabeceras y fechas DD/MM/AAAA o AAAA-MM-DD. Comprueba siempre signos/columnas antes de importar. La deduplicación por lote no es una identidad bancaria universal: un extracto parcial reordenado o diferente puede requerir revisión manual.
+- **CSV ambiguos:** identifica algunas cabeceras. Un importe ambiguo como `1.234` o `1,234` (¿mil doscientos o uno coma dos?) se rechaza en vez de adivinarlo; una fila con cargo y abono a la vez también. Si una línea tiene más o menos columnas que la cabecera (p. ej. `-12,50` sin comillas en un CSV separado por comas), se rechaza el archivo entero para no truncar importes. Comprueba siempre signos/columnas antes de importar. La deduplicación por lote no es una identidad bancaria universal: un extracto parcial reordenado o diferente puede requerir revisión manual.
 - **Solo una persona y uso local.** **No hay login, HTTPS ni cifrado de base de datos**: no se debe exponer el puerto a Internet ni publicar el fichero de datos. Solo escucha en localhost.
 - El backend utiliza el módulo `node:sqlite`, **experimental en Node 22**.
 - No hay restauración desde backup en la UI todavía: **conserva tu copia JSON** y el propio archivo SQLite para copias de seguridad.
