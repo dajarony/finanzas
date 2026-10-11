@@ -41,7 +41,7 @@ Abre después **http://127.0.0.1:8787**.
 - **Presupuestos:** fijar límites de gasto mensuales por categoría y ver utilización/excesos.
 - **CSV:** analizar y previsualizar CSV desde el navegador, asignar columnas de fecha/importe/concepto (importe con signo o columnas de cargo y abono), importar hasta 2.000 movimientos por lote; importación transaccional. Acepta importes de bancos españoles y británicos (`1.234,56`, `1,234.56`, `(12,50)`, `12,50-`, con o sin símbolo de moneda) y fechas `AAAA-MM-DD`, `DD/MM/AAAA` o `DD.MM.AAAA`. Un importe con el símbolo de otra moneda (`£` en una cuenta EUR, `€` en una GBP, o `$`) se rechaza: nunca se convierte. Las filas inválidas se muestran con su línea del archivo y el motivo, y bloquean la importación.
 - **Deduplicación:** repetir el mismo lote no vuelve a insertar sus filas. Dos pagos idénticos dentro del **mismo** lote se preservan.
-- **Backup:** exportación JSON desde la interfaz.
+- **Backup:** exportación JSON desde la interfaz y restauración de esa copia en una app vacía. La copia se valida entera antes de escribir nada (todo o nada) y conserva identificadores, orígenes y claves de importación, así que reimportar un extracto ya incluido no duplica movimientos.
 - **Datos ficticios:** carga demostrativa y eliminación de cuentas, presupuestos y movimientos asociados.
 - **Dinero:** importes en enteros de céntimos, sin sumar GBP y EUR.
 
@@ -55,7 +55,7 @@ Abre después **http://127.0.0.1:8787**.
 - **CSV ambiguos:** identifica algunas cabeceras. Un importe ambiguo como `1.234` o `1,234` (¿mil doscientos o uno coma dos?) se rechaza en vez de adivinarlo; una fila con cargo y abono a la vez también. Si una línea tiene más o menos columnas que la cabecera (p. ej. `-12,50` sin comillas en un CSV separado por comas), se rechaza el archivo entero para no truncar importes. Comprueba siempre signos/columnas antes de importar. La deduplicación por lote no es una identidad bancaria universal: un extracto parcial reordenado o diferente puede requerir revisión manual.
 - **Solo una persona y uso local.** **No hay login, HTTPS ni cifrado de base de datos**: no se debe exponer el puerto a Internet ni publicar el fichero de datos. Solo escucha en localhost.
 - El backend utiliza el módulo `node:sqlite`, **experimental en Node 22**.
-- No hay restauración desde backup en la UI todavía: **conserva tu copia JSON** y el propio archivo SQLite para copias de seguridad.
+- **Restaurar solo en una app vacía:** no se fusiona ni se reemplaza nada. Si ya hay cuentas, movimientos, presupuestos o deudas, la restauración se rechaza sin cambios. **Conserva tu copia JSON** y el propio archivo SQLite para copias de seguridad.
 - Fiscalidad española y británica, forecast avanzado, activos/inversiones, sincronización y recordatorios están pendientes.
 
 ## Privacidad y almacenamiento

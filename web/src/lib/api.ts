@@ -23,5 +23,6 @@ export const backend={
   deleteDebt:(id:string)=>api<{ok:boolean}>(`debts/${encodeURIComponent(id)}`,{method:'DELETE'}),
   importTransactions:(data:{accountId:string;rows:{date:string;description:string;amount:string;category:string}[]})=>api<{imported:number;skipped:number;total:number}>('import',{method:'POST',body:data}),
   seed:()=>api<{added:number}>('demo',{method:'POST'}),
-  clearDemo:()=>api<{deleted:number}>('demo',{method:'DELETE'})
+  clearDemo:()=>api<{deleted:number}>('demo',{method:'DELETE'}),
+  restore:(backup:unknown)=>api<{accounts:number;transactions:number;budgets:number;debts:number}>('restore',{method:'POST',body:backup})
 };
