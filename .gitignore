@@ -7,3 +7,10 @@ data/*
 *.db-shm
 *.db-wal
 *.log
+tsconfig.tsbuildinfo
+
+# AURA Gauntlet: estado y evidencias locales de cada run
+.gauntlet/active.json
+.gauntlet/plan.json
+.gauntlet/runs/
+.gauntlet/tmp/
