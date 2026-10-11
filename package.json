@@ -3,16 +3,21 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "engines": { "node": ">=22.13" },
+  "engines": {
+    "node": ">=22.13"
+  },
   "scripts": {
     "dev": "concurrently -k -n api,web -c cyan,magenta \"node --watch server/index.mjs\" \"vite --host 127.0.0.1\"",
     "dev:api": "node --watch server/index.mjs",
     "build": "tsc -b && vite build",
     "start": "node server/index.mjs",
     "test": "node --experimental-strip-types --test \"tests/*.test.mjs\" \"web/src/**/*.test.ts\"",
+    "test:e2e": "playwright test",
+    "verify": "npm test && npm run check && npm run build && npm run test:e2e",
     "check": "tsc --noEmit"
   },
   "dependencies": {
+    "better-sqlite3-multiple-ciphers": "^13.0.3",
     "lucide-react": "^0.468.0",
     "papaparse": "^5.5.0",
     "react": "^19.0.0",
@@ -20,6 +25,7 @@
     "recharts": "^2.15.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@types/node": "^22.10.0",
     "@types/papaparse": "^5.3.15",
     "@types/react": "^19.0.0",

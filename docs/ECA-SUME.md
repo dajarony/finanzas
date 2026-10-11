@@ -1,6 +1,6 @@
-# Adaptación planificada de ECA + SUME + loop de agentes
+# Integración ECA + SUME + STDG
 
-> ECA y SUME son sistemas propios del usuario. **Este MVP no los ha ejecutado ni integrado aún.** Este documento deja las fronteras y contratos preparados para conectarlos al repositorio correspondiente.
+> El [oráculo ECA](../contratos/eca-oraculo.md) fija diez comportamientos observables; las pruebas de API, almacén y navegador los ejercitan en bases temporales. El [mapa SUME + STDG](../mapa-global/arquitectura.yaml) documenta las conexiones reales y el [registro](../cambios/registro-cambios.md) conserva las modificaciones.
 
 ## SUME: bloques independientes
 
@@ -42,4 +42,6 @@ flowchart TD
 7. Quitar la demo elimina sus cuentas y presupuestos, no los datos reales.
 8. Nunca usar coma flotante para almacenar importes.
 
-Los primeros ocho tienen cobertura parcial en `tests/*.test.mjs`. Deben ampliarse con pruebas reales de navegador, concurrencia, accesibilidad y CSV de diferentes bancos.
+Los primeros ocho tienen cobertura de distinto nivel en `tests/*.test.mjs`; `tests/e2e/flows.spec.ts` añade un recorrido de navegador sobre Chromium. Siguen pendientes pruebas de concurrencia entre procesos, accesibilidad con lectores de pantalla y extractos de bancos adicionales.
+
+Para reproducir el banco completo en un equipo nuevo: `npm ci`, `npx playwright install chromium` y `npm run verify`. El resultado observado de esta iteración está en [`docs/ECA-RESULTS.md`](ECA-RESULTS.md).

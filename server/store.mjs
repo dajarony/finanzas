@@ -1,8 +1,15 @@
 import { DatabaseSync } from 'node:sqlite';
+import EncryptedDatabase from 'better-sqlite3-multiple-ciphers';
 import { randomUUID, requiredString, optionalString, validation, currency, date, month, parseCents, minor, backupId, timestamp, signature, EXPENSE_CATEGORIES } from './core.mjs';
 
-export function createStore(filepath) {
-  const db = new DatabaseSync(filepath);
+export function createStore(filepath, { key } = {}) {
+  const db = key ? new EncryptedDatabase(filepath) : new DatabaseSync(filepath);
+  if (key) {
+    // The key is derived from the user's passphrase; no raw passphrase enters SQL.
+    db.key(key);
+    try { db.prepare('SELECT count(*) FROM sqlite_master').get(); }
+    catch (error) { db.close(); throw validation('Frase de acceso incorrecta o base dañada', 401); }
+  }
   db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
     CREATE TABLE IF NOT EXISTS accounts (
       id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL CHECK(currency IN ('EUR','GBP')),

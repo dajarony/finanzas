@@ -6,6 +6,11 @@ data/*
 *.db
 *.db-shm
 *.db-wal
+*.db.plaintext-*
+*.db.encrypted-*
+*.db.vault.json
+playwright-report/
+test-results/
 *.log
 tsconfig.tsbuildinfo
 

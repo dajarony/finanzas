@@ -1,9 +1,19 @@
-import { type ReactNode } from 'react';
+import { useEffect,useRef,type ReactNode } from 'react';
 import { X,TrendingUp,TrendingDown,Wallet,ShieldCheck,ArrowRight } from 'lucide-react';
 import {money} from '../lib/format';
 import type {Currency,Transaction} from '../types';
 export function Modal({title,children,onClose,width='480px'}:{title:string;children:ReactNode;onClose:()=>void;width?:string}){
-  return <div className="modal-scrim" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}} role="presentation"><section className="modal" role="dialog" aria-modal="true" aria-label={title} style={{maxWidth:width}}><header className="modal-head"><h2>{title}</h2><button className="icon-btn" onClick={onClose} aria-label="Cerrar"><X size={19}/></button></header><div className="modal-body">{children}</div></section></div>;
+  const dialog=useRef<HTMLElement>(null);const close=useRef(onClose);close.current=onClose;
+  useEffect(()=>{const before=document.activeElement as HTMLElement|null;dialog.current?.querySelector<HTMLElement>('[autofocus],input,select,textarea,button')?.focus();
+    function keydown(e:KeyboardEvent){if(e.key==='Escape'){e.preventDefault();close.current();return;}if(e.key!=='Tab'||!dialog.current)return;
+      const items=[...dialog.current.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length>0);
+      if(!items.length)return;const first=items[0],last=items.at(-1)!;
+      if(!dialog.current.contains(document.activeElement)){e.preventDefault();first.focus();return;}
+      if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
+    document.addEventListener('keydown',keydown);return()=>{document.removeEventListener('keydown',keydown);before?.focus()};
+  },[]);
+  return <div className="modal-scrim" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}} role="presentation"><section ref={dialog} className="modal" role="dialog" aria-modal="true" aria-label={title} style={{maxWidth:width}}><header className="modal-head"><h2>{title}</h2><button className="icon-btn" onClick={onClose} aria-label="Cerrar"><X size={19}/></button></header><div className="modal-body">{children}</div></section></div>;
 }
 export function Empty({title,detail,action}:{title:string;detail:string;action?:ReactNode}){
   return <div className="empty-state"><div className="empty-symbol"><Wallet size={24}/></div><strong>{title}</strong><p>{detail}</p>{action}</div>;

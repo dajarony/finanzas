@@ -1,0 +1,44 @@
+# Mapa SUME + STDG de los módulos reales de Aura Finanzas.
+system: aura-finanzas
+version: 0.1.0
+last_updated: 2026-10-12
+sume_version: "1.0"
+entrypoint: server/index.mjs
+routes:
+  - path: /api/auth/*
+    entrada: server/app.mjs
+    logica: server/vault.mjs
+    salida: server/app.mjs
+    contrato: contratos/eca-oraculo.md
+  - path: /api/accounts, /api/transactions, /api/import
+    entrada: server/app.mjs
+    logica: server/core.mjs, server/store.mjs
+    salida: server/app.mjs
+    contrato: contratos/eca-oraculo.md
+  - path: /api/dashboard, /api/budgets, /api/debts, /api/reconcile
+    entrada: server/app.mjs
+    logica: server/store.mjs
+    salida: server/app.mjs
+    contrato: contratos/eca-oraculo.md
+  - path: /api/export, /api/restore
+    entrada: server/app.mjs
+    logica: server/store.mjs, server/vault.mjs
+    salida: server/app.mjs
+    contrato: contratos/eca-oraculo.md
+modules:
+  - name: dominio
+    file: server/core.mjs
+    depends_on: []
+  - name: almacen
+    file: server/store.mjs
+    depends_on: [dominio]
+  - name: privacidad
+    file: server/vault.mjs
+    depends_on: [almacen]
+  - name: interfaz
+    file: web/src/App.tsx
+    depends_on: [api]
+contracts:
+  - name: ECA-oraculo
+    file: contratos/eca-oraculo.md
+    used_by: [tests/vault.test.mjs, tests/e2e/flows.spec.ts]

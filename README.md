@@ -18,7 +18,6 @@
   <img alt="React 19" src="https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white">
   <img alt="SQLite local" src="https://img.shields.io/badge/SQLite-local-0f80cc?logo=sqlite&logoColor=white">
-  <img alt="65 tests" src="https://img.shields.io/badge/tests-65%20en%20verde-2ea44f">
   <img alt="Hecho con AURA Gauntlet" src="https://img.shields.io/badge/hecho%20con-AURA%20Gauntlet-35aae0">
 </p>
 
@@ -38,7 +37,7 @@
 | 🎯 | **Presupuestos** | Límite mensual por categoría y cuánto llevas gastado. |
 | 🧾 | **Deudas** | Saldos pendientes que se restan del patrimonio. |
 | 📥 | **Importar CSV** | Extractos de bancos ES y UK, con vista previa y sin adivinar nunca un importe. |
-| 💾 | **Copia de seguridad** | Exportar a JSON y restaurar esa copia en una app vacía, todo o nada. |
+| 💾 | **Copia de seguridad** | Exportar una copia cifrada y restaurarla en una app vacía con la misma frase, todo o nada. |
 | 🤖 | **Demo** | Datos ficticios para probar, que se quitan sin tocar los tuyos. |
 
 ---
@@ -56,7 +55,7 @@ flowchart LR
     A --> C["🧮 server/core.mjs<br/>céntimos, fechas, ids<br/>(funciones puras)"]
     A --> S["🗄️ server/store.mjs<br/>única capa que toca SQLite"]
     S --> D[("💽 data/aura-finanzas.db")]
-    S --> E[/"💾 Copia JSON"/]
+    S --> E[/"💾 Copia cifrada"/]
 ```
 
 | Capa | Hace | Nunca hace |
@@ -122,7 +121,7 @@ Fechas: `AAAA-MM-DD`, `DD/MM/AAAA` o `DD.MM.AAAA`. Una fecha imposible (`31/02/2
 
 ```mermaid
 flowchart LR
-    A["💾 Exportar copia JSON"] --> B[/"aura-finanzas-backup.json"/]
+    A["💾 Exportar copia cifrada"] --> B[/"aura-finanzas-AAAA-MM-DD.aura"/]
     B --> C{"¿La app está vacía?"}
     C -- no --> X1["⛔ 409: no se mezcla<br/>ni se reemplaza nada"]
     C -- sí --> D{"¿Todo el archivo es válido?<br/>formato · céntimos · monedas<br/>fechas · ids · referencias"}
@@ -130,7 +129,7 @@ flowchart LR
     D -- sí --> E["✅ Restaurado tal cual:<br/>mismos ids, orígenes<br/>y claves de importación"]
 ```
 
-Una copia de hasta **32 MiB** se acepta en la restauración; el resto de peticiones tienen un límite de 4 MiB.
+Una copia de hasta **48 MiB** se acepta en la restauración; el resto de peticiones tienen un límite de 4 MiB. La restauración necesita la misma frase de acceso con la que se exportó.
 
 ---
 
@@ -164,7 +163,7 @@ npm run dev
 ```
 
 3. Abre **http://127.0.0.1:5173**. La API escucha solo en **127.0.0.1:8787**.
-4. Pulsa **Explorar demo** para jugar con datos ficticios, o ve a **Cuentas y deudas** para crear las tuyas.
+4. Crea una frase de acceso de al menos 12 caracteres. Después pulsa **Explorar demo** para jugar con datos ficticios, o ve a **Cuentas y deudas** para crear las tuyas.
 
 Para una única app que sirva la API y la web desde Node:
 
@@ -180,12 +179,15 @@ y abre **http://127.0.0.1:8787**.
 ## 🧪 Calidad
 
 ```bash
-npm test         # 65 tests: servidor, API y lógica CSV de la web
+npm test         # servidor, seguridad, API y lógica CSV de la web
 npm run check    # tipos de TypeScript
 npm run build    # compilación de la web
+npx playwright install chromium
+npm run test:e2e # recorrido real en Chromium con base temporal
+npm run verify   # ejecuta todo el banco anterior
 ```
 
-El [CI de GitHub](.github/workflows/ci.yml) ejecuta los tres en cada PR y en cada cambio de `main`.
+El [CI de GitHub](.github/workflows/ci.yml) ejecuta tests, tipos, compilación y navegador en cada PR y en cada cambio de `main`.
 
 | Archivo de tests | Qué protege |
 |---|---|
@@ -194,6 +196,8 @@ El [CI de GitHub](.github/workflows/ci.yml) ejecuta los tres en cada PR y en cad
 | `web/src/lib/csv.test.ts` | Importes, fechas, columnas y monedas del CSV |
 | `tests/restore.test.mjs` | Ida y vuelta de la copia, todo o nada, 409 y 400 |
 | `tests/reconcile.test.mjs` | Cuadre con el extracto, signos y monedas |
+| `tests/vault.test.mjs` | Frase, cifrado, migración, sesión y copias autenticadas |
+| `tests/e2e/flows.spec.ts` | Apertura, cuentas, gasto, CSV, monedas, copia, bloqueo y móvil en Chromium |
 
 ---
 
@@ -235,8 +239,8 @@ Lo que encontraron los supervisores durante el plan, y quedó corregido con su t
 - **Conciliación limitada:** puedes comprobar a mano si una cuenta cuadra con tu extracto, pero la app no guarda conciliaciones, no ajusta saldos ni modela transferencias internas.
 - **CSV:** reconoce algunas cabeceras habituales; revisa siempre signos y columnas antes de importar. La deduplicación por lote no es una identidad bancaria universal: un extracto parcial reordenado puede requerir revisión manual.
 - **Restaurar solo en una app vacía:** no se fusiona ni se reemplaza nada.
-- **Solo una persona y uso local.** **No hay login, HTTPS ni cifrado de base de datos.** No expongas el puerto a Internet. Solo escucha en localhost.
-- El backend usa `node:sqlite`, **experimental en Node 22**.
+- **Solo una persona y uso local.** La frase de acceso desbloquea el almacén cifrado y una sesión local; no hay cuentas de usuario ni HTTPS. No expongas el puerto a Internet. Solo escucha en localhost.
+- El backend usa `node:sqlite` para pruebas y migración heredada, y `better-sqlite3-multiple-ciphers` para el almacén cifrado.
 - Fiscalidad ES/UK, previsiones, inversiones, sincronización y recordatorios están pendientes ([`docs/ROADMAP.md`](docs/ROADMAP.md)).
 
 ---
@@ -244,11 +248,13 @@ Lo que encontraron los supervisores durante el plan, y quedó corregido con su t
 ## 🔒 Privacidad y almacenamiento
 
 - Los datos viven en `data/aura-finanzas.db`, en el mismo equipo que ejecuta Node. `data/` está excluido de Git.
-- Para una copia directa, para el servidor y copia el archivo SQLite, o exporta el JSON desde la app.
+- Al abrir por primera vez, crea una frase de al menos 12 caracteres. Sin ella no se puede abrir la base ni restaurar una copia cifrada. Guárdala fuera del equipo.
+- Exporta copias cifradas `.aura` desde la app. Una copia directa del archivo SQLite cifrado requiere también `aura-finanzas.db.vault.json` y la misma frase de acceso.
+- Si había una base antigua sin cifrar, Aura crea un archivo `aura-finanzas.db.plaintext-*` antes de migrar. Comprueba que todos tus datos están presentes y retira ese archivo manualmente cuando ya no lo necesites: sigue conteniendo información legible.
 - Los CSV se interpretan **en el navegador** y los movimientos ya normalizados solo se envían a la **API local**. Sin servicios de IA ni analítica externa; las fuentes son las del sistema.
 
 > [!WARNING]
-> **Antes de registrar extractos reales:** revisa el código, define cifrado y copias seguras, y no lo ejecutes en ordenadores compartidos. Cualquiera con acceso a tu usuario podría leer el SQLite sin cifrar.
+> **Antes de registrar extractos reales:** revisa el código y haz una copia cifrada de prueba. La protección cubre los archivos en reposo y las copias exportadas; alguien con control del equipo mientras Aura esté desbloqueada podría acceder a los datos. No la uses en un ordenador compartido.
 
 ---
 
@@ -258,6 +264,7 @@ Lo que encontraron los supervisores durante el plan, y quedó corregido con su t
 server/
   core.mjs           → importes en céntimos, fechas, ids, validación (puro)
   store.mjs          → SQLite: cuentas, movimientos, demo, copia, cuadre
+  vault.mjs          → frase de acceso, sesión local y copias cifradas
   app.mjs            → rutas HTTP y servido estático
   index.mjs          → arranque local en 127.0.0.1
 web/src/
@@ -266,7 +273,9 @@ web/src/
   lib/csv.ts         → parseCsv, mapRows, cuenta de destino (puro y testeado)
   lib/format.ts      → importes, fechas y formato de moneda
   lib/api.ts         → cliente HTTP tipado
-tests/               → store, api, demo, restore, reconcile
+tests/               → store, api, demo, restore, reconcile, vault, e2e
+entradas/, logica/, salidas/, contratos/ → índices y oráculo SUME
+mapa-global/, cambios/ → trazabilidad STDG
 assets/              → banner 3D, mascota Aura y su generador
 .gauntlet/           → gates y contratos del plan F1–F4
 docs/                → ARCHITECTURE, ECA-SUME, ROADMAP, SECURITY

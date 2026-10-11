@@ -8,5 +8,5 @@ fs.mkdirSync(dataDir,{recursive:true,mode:0o700});
 const dbFile=path.join(dataDir,'aura-finanzas.db');
 const port=Number(process.env.PORT||8787);
 const host='127.0.0.1'; // Privacy invariant: no unauthenticated public listener.
-const {server}=makeServer({dbFile});
+const {server}=makeServer({dbFile,secure:true});
 server.listen(port,host,()=>console.log(`Aura Finanzas API → http://${host}:${port} (almacén: ${dbFile})`));

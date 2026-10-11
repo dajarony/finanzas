@@ -3,15 +3,15 @@
 ## Fase 0 — entregada en el código
 
 - API SQLite y panel web React/TypeScript.
-- Cuentas, movimientos, presupuestos, deudas, gráficos, importación CSV y export JSON.
+- Cuentas, movimientos, presupuestos, deudas, gráficos, importación CSV y copia cifrada.
 - Demostración ficticia eliminable y pruebas de negocio/API.
 
 ## Fase 1 — cerrar antes de datos reales
 
-- `npm install`, `npm run check`, `npm run build` y pruebas end-to-end en navegador.
-- Pruebas de accesibilidad WCAG, rendimiento en móvil y importadores CSV por banco.
+- **Hecho:** `npm ci`, `npm run verify` y recorrido end-to-end en Chromium con base temporal.
+- **Parcial:** navegación por teclado, foco de diálogos, móvil y movimiento reducido. Pendiente auditoría WCAG completa, rendimiento medido y CSV por banco.
 - Correcciones de reconciliación contra saldos oficiales y auditoría de duplicados inter-extractos.
-- Almacén cifrado, copias protegidas, restauración validada y control de acceso local.
+- **Hecho:** almacén cifrado, copias autenticadas, restauración validada y sesión local con bloqueo por inactividad. Pendiente revisión criptográfica externa y retirada manual de copias antiguas en claro.
 - Pruebas de seguridad, rate limits y gestión de sesión si se plantea alojar remoto.
 
 ## Fase 2 — España y Reino Unido
@@ -25,6 +25,6 @@
 ## Fase 3 — automatización controlada
 
 - Conexiones bancarias opcionales con consentimiento y proveedor regulado.
-- Agentes ECA/SUME con permisos mínimos, propuestas no destructivas, revisiones y trazabilidad.
+- **Parcial:** oráculo ECA ejecutable mediante tests y mapa SUME/STDG con registro de cambios. La automatización de agentes con permisos mínimos queda pendiente.
 - Alertas de gastos recurrentes, presupuesto y vencimientos sin automatizar pagos.
 - Simulación y proyección basada en supuestos visibles.
