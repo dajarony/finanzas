@@ -1,5 +1,5 @@
-import {useEffect,useState} from 'react';
-import {LayoutDashboard,ArrowLeftRight,Target,Landmark,FileUp,ShieldCheck,Download,Plus,Menu,X,Sun,ChevronDown,Database,Wallet,CalendarDays,ArrowUpRight,CheckCircle2,AlertCircle} from 'lucide-react';
+import {useEffect,useRef,useState} from 'react';
+import {LayoutDashboard,ArrowLeftRight,Target,Landmark,FileUp,ShieldCheck,Download,Upload,Plus,Menu,X,Sun,ChevronDown,Database,Wallet,CalendarDays,ArrowUpRight,CheckCircle2,AlertCircle} from 'lucide-react';
 import type {Account,Currency,Dashboard,Tab} from './types';
 import {categoriesExpense,categoriesIncome} from './types';
 import {backend} from './lib/api';
@@ -35,6 +35,17 @@ export function App(){
   try{await backend.createTransaction({accountId:txAccount,date:txDate,description:txDescription,amount:signed,category:txCategory,note:txNote});setNewTx(false);changed();setSuccess('Movimiento guardado correctamente.');}catch(e){inform((e as Error).message)}finally{setTxSaving(false)}
  }
  async function seed(){try{const r=await backend.seed();changed();setTab('overview');setSuccess(`${r.added} movimientos ficticios cargados para probar la aplicación.`);}catch(e){inform((e as Error).message)}}
+ const restoreInput=useRef<HTMLInputElement>(null);
+ // Only an empty app accepts a backup; the server validates the whole file and refuses otherwise.
+ async function restore(file:File|undefined){
+  if(restoreInput.current)restoreInput.current.value='';
+  if(!file||!confirm(`¿Restaurar la copia «${file.name}»? Solo funciona si la app está vacía.`))return;
+  // The server stops reading past 32 MiB, and a cut upload would only surface as a network error.
+  if(file.size>32*1024*1024){inform('La copia no puede superar 32 MB.');return;}
+  let backup:unknown;
+  try{backup=JSON.parse(await file.text());}catch{inform('El archivo no es una copia JSON válida.');return;}
+  try{const r=await backend.restore(backup);changed();setError('');setSuccess(`Copia restaurada: ${r.accounts} cuentas, ${r.transactions} movimientos, ${r.budgets} presupuestos y ${r.debts} deudas.`);}catch(e){inform((e as Error).message)}
+ }
  async function clearDemo(){if(!confirm('¿Eliminar los datos de demostración? No afecta a movimientos reales.'))return;try{await backend.clearDemo();changed();setSuccess('Datos de demostración eliminados.')}catch(e){inform((e as Error).message)}}
  return <div className="app-shell">
   <aside className={`sidebar ${mobileMenu?'mobile-open':''}`}>
@@ -43,7 +54,7 @@ export function App(){
    <nav className="sidebar-nav" aria-label="Navegación principal">{navigation.map(({key,label,icon:Icon})=><button key={key} className={`nav-link ${tab===key?'active':''}`} onClick={()=>selectTab(key)}><Icon size={19}/><span>{label}</span>{tab===key&&<span className="active-indicator"/>}</button>)}</nav>
    <div className="sidebar-grow"/>
    <div className="privacy-card"><div className="privacy-icon"><ShieldCheck size={18}/></div><strong>Tus datos, tuyos.</strong><p>Guardados localmente. Sin conexión a tus bancos ni cuentas externas.</p><span>LOCAL FIRST <span className="dot-online"/></span></div>
-   <div className="sidebar-bottom"><button className="sidebar-tool" onClick={()=>{window.location.href='/api/export'}}><Download size={17}/> Exportar copia JSON</button><div className="powered"><span className="powered-avatar">A</span><div><strong>Aura Finanzas</strong><small>Versión MVP · 0.1</small></div><ChevronDown size={17}/></div></div>
+   <div className="sidebar-bottom"><button className="sidebar-tool" onClick={()=>{window.location.href='/api/export'}}><Download size={17}/> Exportar copia JSON</button><button className="sidebar-tool" onClick={()=>restoreInput.current?.click()}><Upload size={17}/> Restaurar copia JSON</button><input ref={restoreInput} type="file" accept=".json,application/json" hidden onChange={e=>void restore(e.target.files?.[0])}/><div className="powered"><span className="powered-avatar">A</span><div><strong>Aura Finanzas</strong><small>Versión MVP · 0.1</small></div><ChevronDown size={17}/></div></div>
   </aside>
   {mobileMenu&&<button className="mobile-overlay" aria-label="Cerrar menú" onClick={()=>setMobileMenu(false)}/>}
   <main className="main-area"><header className="topbar"><div className="topbar-left"><button className="menu-button icon-btn" onClick={()=>setMobileMenu(true)} aria-label="Abrir menú"><Menu size={21}/></button><span className="breadcrumb">Mi espacio</span><span className="breadcrumb-sep">/</span><strong>{navigation.find(n=>n.key===tab)?.label}</strong></div><div className="topbar-right"><span className="local-label"><ShieldCheck size={15}/> Privado y local</span><span className="topbar-avatar">AF</span></div></header>

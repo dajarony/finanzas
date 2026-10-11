@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="176" viewBox="0 0 192 176" role="img" aria-labelledby="title desc">
+  <title id="title">Aura, mascota de Aura Finanzas</title>
+  <desc id="desc">Robot azul sonriente que sujeta una moneda de euro, parpadea y saluda con una mano abierta.</desc>
+  <defs>
+    <linearGradient id="front" x2="0" y2="1"><stop stop-color="#43b9e9"/><stop offset="1" stop-color="#2498d1"/></linearGradient>
+    <linearGradient id="side" x2="1" y2="1"><stop stop-color="#257ca6"/><stop offset="1" stop-color="#155b83"/></linearGradient>
+    <linearGradient id="glove" x2="0" y2="1"><stop stop-color="#b7eaf7"/><stop offset="1" stop-color="#74cce8"/></linearGradient>
+    <linearGradient id="gold" x2="1" y2="1"><stop stop-color="#ffe58a"/><stop offset=".55" stop-color="#f5c242"/><stop offset="1" stop-color="#d99a1c"/></linearGradient>
+  </defs>
+  <g transform="translate(6 4)" stroke="#103b55" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <g id="legs">
+      <rect x="66" y="134" width="13" height="14" rx="3" fill="#2378a1"/>
+      <rect x="98" y="134" width="13" height="14" rx="3" fill="#2378a1"/>
+      <path d="M63 146h16v8H60v-4z" fill="#3ca9d8"/>
+      <path d="M98 146h16l4 4v4H98z" fill="#3ca9d8"/>
+      <path d="M64 148h11m27 0h10" stroke="#8bd9ef" stroke-width="1.4"/>
+    </g>
+    <g id="note-arm">
+      <path d="M64 113 53 119 47 124" fill="none" stroke-width="12"/>
+      <path d="M64 113 53 119 47 124" fill="none" stroke="#319ed0" stroke-width="8"/>
+      <ellipse cx="49" cy="124" rx="7" ry="6" fill="url(#glove)"/>
+    </g>
+    <g id="torso">
+      <path d="m60 108 11-10h52l-11 10z" fill="#9cdef2"/>
+      <path d="m112 108 11-10v35l-11 10z" fill="url(#side)"/>
+      <rect x="60" y="108" width="52" height="35" rx="4" fill="url(#front)"/>
+      <path d="M65 112h40" stroke="#8bd9ef" stroke-width="1.5"/>
+      <rect x="77" y="117" width="19" height="17" rx="3" fill="#1d7099"/>
+      <path d="M83 121h7v9h-7z" fill="#b6e8f4" stroke="none"/>
+      <path d="M85 124h3m-3 3h3" stroke="#3a89ad" stroke-width="1"/>
+    </g>
+    <g id="antenna">
+      <path d="M83 29V18" stroke-width="5"/>
+      <path d="M83 29V18" stroke="#79cce5" stroke-width="2"/>
+      <circle cx="83" cy="13" r="5.5" fill="#74dbb0"/>
+      <circle cx="81.5" cy="11.5" r="1.6" fill="#e2fff3" stroke="none"/>
+    </g>
+    <g id="head">
+      <path d="M40 44 53 29h74l5 4-14 15H43z" fill="#9edff3"/>
+      <path d="m118 44 14-11v60l-14 14z" fill="url(#side)"/>
+      <path d="M44 44h70l4 4v55l-4 4H44l-4-4V48z" fill="url(#front)"/>
+      <path d="M45 99V50h67" fill="none" stroke="#b2e8f7" stroke-width="1.7"/>
+      <path d="m54 32 70 0" stroke="#d0f2fb" stroke-width="1.2"/>
+      <g id="eyes"><animateTransform attributeName="transform" type="matrix" dur="4s" repeatCount="indefinite" keyTimes="0;0.9;0.94;0.98;1" values="1 0 0 1 0 0;1 0 0 1 0 0;1 0 0 0.12 0 65.12;1 0 0 1 0 0;1 0 0 1 0 0"/>
+        <rect x="57" y="66" width="14" height="16" rx="4" fill="#12354e" stroke="none"/>
+        <rect x="90" y="66" width="14" height="16" rx="4" fill="#12354e" stroke="none"/>
+        <rect x="60" y="69" width="4" height="4" rx="1.5" fill="#edfbff" stroke="none"/>
+        <rect x="93" y="69" width="4" height="4" rx="1.5" fill="#edfbff" stroke="none"/>
+      </g>
+      <path d="M69 91c7 9 17 9 25 0" fill="none" stroke-width="2.7"/>
+      <path d="M55 89h5m42 0h5" stroke="#82d6ec" stroke-width="3"/>
+    </g>
+    <g id="wave-arm">
+      <path d="m121 116 20-1" fill="none" stroke-width="12"/>
+      <path d="m121 116 20-1" fill="none" stroke="#319ed0" stroke-width="8"/>
+      <circle cx="141" cy="115" r="5" fill="#247fab"/>
+      <g transform="translate(141 115)"><g><animateTransform attributeName="transform" type="rotate" dur="1.6s" repeatCount="indefinite" values="-6;12;-6"/>
+        <path d="M0 0 5-17" fill="none" stroke-width="10"/>
+        <path d="M0 0 5-17" fill="none" stroke="#42afd9" stroke-width="6"/>
+        <path d="M2-15h7" stroke="#195777" stroke-width="3"/>
+        <g id="open-palm">
+          <path d="M0-18c-2-1-4-4-6-6-2-3 1-5 3-3l3 3v-8c0-3 4-3 4 0v-3c0-3 4-3 4 0v2c0-3 4-3 4 0v10c0 5-3 7-7 7z" fill="url(#glove)" stroke-width="1.4"/>
+          <path d="M4-32v6m4-7v7" fill="none" stroke="#499cbf" stroke-width="1"/>
+          <path d="M2-20c2-1 4-1 6 0" fill="none" stroke="#6ebcd7" stroke-width="1"/>
+        </g>
+      </g></g>
+    </g>
+    <g id="coin">
+      <ellipse cx="31" cy="119" rx="17" ry="17" fill="#b9811a"/>
+      <circle cx="29" cy="117" r="17" fill="url(#gold)"/>
+      <circle cx="29" cy="117" r="12.5" fill="none" stroke="#c98c1c" stroke-width="1.4"/>
+      <path d="M35 110.5c-2-1.6-4-2.3-6.2-2.3-4.6 0-7.8 3.7-7.8 8.8s3.2 8.8 7.8 8.8c2.2 0 4.2-.7 6.2-2.3M19 114.8h11m-11 4.4h10" fill="none" stroke="#7a4f0a" stroke-width="2.2"/>
+      <path d="M20 105c3-3 8-4 12-3" fill="none" stroke="#fff6cf" stroke-width="1.6"/>
+      <path d="M44 121c-3 0-4 2-3 4s5 3 8 1v-4z" fill="url(#glove)" stroke-width="1.4"/>
+    </g>
+  </g>
+</svg>
+

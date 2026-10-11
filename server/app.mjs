@@ -12,12 +12,12 @@ function response(res,code,payload,headers={}) {
   res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers});
   res.end(body);
 }
-async function readJson(req) {
+async function readJson(req, maxBytes=4*1024*1024) {
   if (!(req.headers['content-type']||'').startsWith('application/json')) throw validation('El contenido debe ser application/json',415);
   let bytes=0;const chunks=[];
   for await (const chunk of req) {
     bytes += chunk.length;
-    if(bytes > 4*1024*1024) throw validation('Petición demasiado grande',413);
+    if(bytes > maxBytes) throw validation('Petición demasiado grande',413);
     chunks.push(chunk);
   }
   try { const result=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!result||typeof result!=='object'||Array.isArray(result)) throw new Error();return result; }
@@ -59,6 +59,7 @@ export function makeServer({ dbFile }) {
       if(route==='/api/dashboard' && method==='GET') return response(res,200,store.dashboard(cur,mon));
       if(route==='/api/accounts' && method==='GET') return response(res,200,store.listAccounts(url.searchParams.get('currency')));
       if(route==='/api/accounts' && method==='POST') return response(res,201,store.createAccount(await readJson(req)));
+      if(route==='/api/reconcile' && method==='GET') return response(res,200,store.reconcile({accountId:url.searchParams.get('account'),date:url.searchParams.get('date'),balance:url.searchParams.get('balance')}));
       if(route==='/api/transactions' && method==='GET') return response(res,200,store.listTransactions({c:url.searchParams.get('currency'),m:url.searchParams.get('month'),search:url.searchParams.get('search'),limit:url.searchParams.get('limit')}));
       if(route==='/api/transactions' && method==='POST') return response(res,201,store.addTransaction(await readJson(req)));
       if(/^\/api\/transactions\/[^/]+$/.test(route) && method==='DELETE') {store.deleteTransaction(route.split('/').at(-1));return response(res,200,{ok:true});}
@@ -68,6 +69,8 @@ export function makeServer({ dbFile }) {
       if(route==='/api/debts' && method==='GET') return response(res,200,store.listDebts(cur));
       if(route==='/api/debts' && method==='POST') return response(res,201,store.createDebt(await readJson(req)));
       if(/^\/api\/debts\/[^/]+$/.test(route) && method==='DELETE') {store.deleteDebt(route.split('/').at(-1));return response(res,200,{ok:true});}
+      // A full backup may exceed the 4 MiB limit of every other route.
+      if(route==='/api/restore' && method==='POST') return response(res,200,store.restoreData(await readJson(req,32*1024*1024)));
       if(route==='/api/demo' && method==='POST') return response(res,200,store.seedDemo());
       if(route==='/api/demo' && method==='DELETE') return response(res,200,store.clearDemo());
       if(route==='/api/export' && method==='GET') {
