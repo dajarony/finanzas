@@ -1,4 +1,15 @@
-import type {Account,Budget,Currency,Dashboard,Debt,Transaction} from '../types';
+import type {Account,Budget,Currency,Dashboard,Debt,Reconciliation,Transaction} from '../types';
+import {canonicalAmount,parseAmount} from './format.ts';
+// EUR and GBP are never converted: "$" or the other currency's symbol makes the balance invalid.
+// Same rule as the CSV import (lib/csv.ts), kept here because the statement check sends it to the API.
+const SYMBOL_CURRENCY:Record<string,Currency|undefined>={'€':'EUR','£':'GBP','$':undefined};
+// A balance typed from a bank statement, as the canonical text the API expects, or null when it is
+// malformed, ambiguous or written in another currency. A zero written as "-0,00" is just zero.
+export function statementBalance(text:string,currency:Currency):string|null{
+  const a=parseAmount(text);
+  if(!a||(a.symbol!==null&&SYMBOL_CURRENCY[a.symbol]!==currency))return null;
+  return a.abs==='0.00'?'0.00':canonicalAmount(a);
+}
 export async function api<T>(path:string,opts?:{method?:string;body?:unknown}):Promise<T>{
   const res=await fetch(`/api/${path}`,{
     method:opts?.method||'GET',headers:opts?.body!==undefined?{'Content-Type':'application/json'}:undefined,
@@ -24,5 +35,6 @@ export const backend={
   importTransactions:(data:{accountId:string;rows:{date:string;description:string;amount:string;category:string}[]})=>api<{imported:number;skipped:number;total:number}>('import',{method:'POST',body:data}),
   seed:()=>api<{added:number}>('demo',{method:'POST'}),
   clearDemo:()=>api<{deleted:number}>('demo',{method:'DELETE'}),
+  reconcile:(accountId:string,date:string,balance:string)=>api<Reconciliation>(`reconcile?${new URLSearchParams({account:accountId,date,balance})}`),
   restore:(backup:unknown)=>api<{accounts:number;transactions:number;budgets:number;debts:number}>('restore',{method:'POST',body:backup})
 };

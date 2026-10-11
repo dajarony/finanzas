@@ -59,6 +59,7 @@ export function makeServer({ dbFile }) {
       if(route==='/api/dashboard' && method==='GET') return response(res,200,store.dashboard(cur,mon));
       if(route==='/api/accounts' && method==='GET') return response(res,200,store.listAccounts(url.searchParams.get('currency')));
       if(route==='/api/accounts' && method==='POST') return response(res,201,store.createAccount(await readJson(req)));
+      if(route==='/api/reconcile' && method==='GET') return response(res,200,store.reconcile({accountId:url.searchParams.get('account'),date:url.searchParams.get('date'),balance:url.searchParams.get('balance')}));
       if(route==='/api/transactions' && method==='GET') return response(res,200,store.listTransactions({c:url.searchParams.get('currency'),m:url.searchParams.get('month'),search:url.searchParams.get('search'),limit:url.searchParams.get('limit')}));
       if(route==='/api/transactions' && method==='POST') return response(res,201,store.addTransaction(await readJson(req)));
       if(/^\/api\/transactions\/[^/]+$/.test(route) && method==='DELETE') {store.deleteTransaction(route.split('/').at(-1));return response(res,200,{ok:true});}

@@ -144,6 +144,15 @@ export function createStore(filepath) {
     return { currency:c,month:m,balance_minor:balanceMinor,debt_minor:debtMinor,net_worth_minor:balanceMinor-debtMinor,
       income_minor:total.income,expense_minor:total.expense,categories,timeline,recent,accounts, budgets:spentBudget, demo_count:demoCount };
   }
+  // Read-only check of a statement balance: the account's balance on `date` is its opening
+  // balance plus every movement dated on or before that day. Nothing is stored or adjusted.
+  function reconcile({ accountId, date: on, balance } = {}) {
+    const d=date(on); const statement=parseCents(balance,{zero:true});
+    const a=account(requiredString(accountId,'Cuenta',80));
+    const computed=a.opening_minor+get('SELECT COALESCE(SUM(amount_minor),0) n FROM transactions WHERE account_id=? AND date<=?',a.id,d).n;
+    return { account_id:a.id, currency:a.currency, date:d, computed_minor:computed, statement_minor:statement,
+      difference_minor:statement-computed, matches:statement===computed };
+  }
   function exportData() {
     // Export is explicit and local; amounts stored as integer minor units.
     return { format:'aura-finanzas-v1', exported_at:new Date().toISOString(), accounts:listAccounts(),
@@ -242,5 +251,5 @@ export function createStore(filepath) {
     catch(e){db.exec('ROLLBACK');throw e;}
   }
   return { close:()=>db.close(), listAccounts,createAccount,listTransactions,addTransaction,importTransactions,deleteTransaction,
-    listBudgets,upsertBudget,listDebts,createDebt,deleteDebt,dashboard,exportData,restoreData,seedDemo,clearDemo };
+    listBudgets,upsertBudget,listDebts,createDebt,deleteDebt,dashboard,reconcile,exportData,restoreData,seedDemo,clearDemo };
 }

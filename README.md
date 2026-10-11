@@ -43,6 +43,7 @@ Abre después **http://127.0.0.1:8787**.
 - **Deduplicación:** repetir el mismo lote no vuelve a insertar sus filas. Dos pagos idénticos dentro del **mismo** lote se preservan.
 - **Backup:** exportación JSON desde la interfaz y restauración de esa copia en una app vacía. La copia se valida entera antes de escribir nada (todo o nada) y conserva identificadores, orígenes y claves de importación, así que reimportar un extracto ya incluido no duplica movimientos.
 - **Datos ficticios:** carga demostrativa y eliminación de cuentas, presupuestos y movimientos asociados.
+- **Cuadrar con el extracto:** en Cuentas, indica la fecha y el saldo que muestra tu extracto y la app te dice si cuadra o cuánto se desvía (saldo inicial + movimientos hasta esa fecha, incluida). Es solo una consulta: no guarda nada.
 - **Dinero:** importes en enteros de céntimos, sin sumar GBP y EUR.
 
 ## Limitaciones importantes del MVP
@@ -51,7 +52,7 @@ Abre después **http://127.0.0.1:8787**.
 - No hay soporte de extracción PDF/OFX/QIF o OCR, ni IA para facturas; están planeados.
 - **Sin conversiones de divisas.** El patrimonio se calcula por moneda; no hay patrimonio conjunto EUR+GBP.
 - **Deudas manuales:** los movimientos bancarios no liquidan una deuda automáticamente.
-- **Conciliación limitada:** no se verifica el saldo contra un extracto oficial ni se modelan transferencias internas. Los importes de entrada deben coincidir con los del documento.
+- **Conciliación limitada:** puedes comprobar a mano si el saldo de una cuenta en una fecha cuadra con el de tu extracto, pero la app no guarda conciliaciones, no ajusta saldos ni modela transferencias internas. Los importes de entrada deben coincidir con los del documento.
 - **CSV ambiguos:** identifica algunas cabeceras. Un importe ambiguo como `1.234` o `1,234` (¿mil doscientos o uno coma dos?) se rechaza en vez de adivinarlo; una fila con cargo y abono a la vez también. Si una línea tiene más o menos columnas que la cabecera (p. ej. `-12,50` sin comillas en un CSV separado por comas), se rechaza el archivo entero para no truncar importes. Comprueba siempre signos/columnas antes de importar. La deduplicación por lote no es una identidad bancaria universal: un extracto parcial reordenado o diferente puede requerir revisión manual.
 - **Solo una persona y uso local.** **No hay login, HTTPS ni cifrado de base de datos**: no se debe exponer el puerto a Internet ni publicar el fichero de datos. Solo escucha en localhost.
 - El backend utiliza el módulo `node:sqlite`, **experimental en Node 22**.

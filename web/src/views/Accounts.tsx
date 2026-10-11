@@ -1,8 +1,8 @@
-import {useEffect,useState} from 'react';
-import {Plus,Landmark,Wallet,Trash2,AlertCircle} from 'lucide-react';
-import {backend} from '../lib/api';
-import type {Account,Currency,Debt} from '../types';
-import {money} from '../lib/format';
+import {useEffect,useRef,useState} from 'react';
+import {Plus,Landmark,Wallet,Trash2,AlertCircle,Scale} from 'lucide-react';
+import {backend,statementBalance} from '../lib/api';
+import type {Account,Currency,Debt,Reconciliation} from '../types';
+import {money,today} from '../lib/format';
 import {Empty,Modal,Submit} from '../components/UI';
 export function Accounts({currency,version,onChange,onError}:{currency:Currency;version:number;onChange:()=>void;onError:(s:string)=>void}){
  const [accounts,setAccounts]=useState<Account[]>([]);const [debts,setDebts]=useState<Debt[]>([]);
@@ -10,9 +10,25 @@ export function Accounts({currency,version,onChange,onError}:{currency:Currency;
  useEffect(()=>{let active=true;Promise.all([backend.accounts(),backend.debts(currency)]).then(([a,d])=>{if(active){setAccounts(a.filter(x=>x.currency===currency));setDebts(d)}}).catch(e=>onError(e.message));return()=>{active=false};},[currency,version]);
  const open=(kind:'account'|'debt')=>{setName('');setAmount('0.00');setModal(kind)};
  async function save(e:React.FormEvent){e.preventDefault();setSaving(true);try{if(modal==='account')await backend.createAccount({name,currency,opening:amount});else await backend.createDebt({label:name,currency,amount});setModal(null);onChange();}catch(err){onError((err as Error).message)}finally{setSaving(false)}}
+ // Statement check: read-only, it never changes the account. Results and errors show inside the
+ // dialog, and an answer is dropped if the inputs or the account changed while it was on its way.
+ const [checking,setChecking]=useState<Account|null>(null);const [checkDate,setCheckDate]=useState(today());const [checkBalance,setCheckBalance]=useState('');
+ const [check,setCheck]=useState<Reconciliation|null>(null);const [checkError,setCheckError]=useState('');const lastCheck=useRef(0);
+ const resetCheck=()=>{lastCheck.current++;setCheck(null);setCheckError('')};
+ const openCheck=(a:Account)=>{resetCheck();setChecking(a);setCheckDate(today());setCheckBalance('')};
+ async function reconcile(e:React.FormEvent){e.preventDefault();if(!checking)return;resetCheck();
+  const balance=statementBalance(checkBalance,checking.currency);
+  if(balance===null){setCheckError(`Introduce el saldo del extracto en ${checking.currency}, p. ej. 1234.56 o -20,00, sin símbolos de otra moneda.`);return;}
+  const request=lastCheck.current;
+  try{const r=await backend.reconcile(checking.id,checkDate,balance);if(request===lastCheck.current)setCheck(r);}
+  catch(err){if(request===lastCheck.current)setCheckError((err as Error).message)}}
  async function removeDebt(id:string){if(!confirm('¿Eliminar esta deuda?'))return;try{await backend.deleteDebt(id);onChange();}catch(e){onError((e as Error).message)}}
- return <div className="section-stack"><section className="panel"><div className="panel-heading"><div><h2>Cuentas y saldos</h2><p>Saldo inicial + ingresos − gastos registrados.</p></div><button className="btn btn-primary" onClick={()=>open('account')}><Plus size={17}/> Añadir cuenta</button></div><div className="account-grid">{accounts.map(a=><div key={a.id} className="account-card"><div className="account-card-head"><span className="account-icon"><Landmark size={20}/></span><span className="currency-pill">{a.currency}</span></div><strong>{a.name}</strong><span className="account-balance">{money(a.balance_minor,currency)}</span><span className="muted small">Saldo inicial: {money(a.opening_minor,currency)}</span></div>)}</div>{!accounts.length&&<Empty title="Todavía no hay cuentas" detail="Crea tu primera cuenta en EUR o GBP para registrar movimientos." action={<button className="btn btn-secondary" onClick={()=>open('account')}>Añadir cuenta</button>}/>}</section>
+ return <div className="section-stack"><section className="panel"><div className="panel-heading"><div><h2>Cuentas y saldos</h2><p>Saldo inicial + ingresos − gastos registrados.</p></div><button className="btn btn-primary" onClick={()=>open('account')}><Plus size={17}/> Añadir cuenta</button></div><div className="account-grid">{accounts.map(a=><div key={a.id} className="account-card"><div className="account-card-head"><span className="account-icon"><Landmark size={20}/></span><span className="currency-pill">{a.currency}</span></div><strong>{a.name}</strong><span className="account-balance">{money(a.balance_minor,currency)}</span><span className="muted small">Saldo inicial: {money(a.opening_minor,currency)}</span><button className="btn btn-secondary" onClick={()=>openCheck(a)}><Scale size={15}/> Cuadrar con extracto</button></div>)}</div>{!accounts.length&&<Empty title="Todavía no hay cuentas" detail="Crea tu primera cuenta en EUR o GBP para registrar movimientos." action={<button className="btn btn-secondary" onClick={()=>open('account')}>Añadir cuenta</button>}/>}</section>
  <section className="panel"><div className="panel-heading"><div><h2>Deudas declaradas</h2><p>Importes introducidos manualmente; aún no se actualizan con los pagos.</p></div><button className="btn btn-secondary" onClick={()=>open('debt')}><Plus size={16}/> Añadir deuda</button></div><div className="debt-list">{debts.map(d=><div className="debt-entry" key={d.id}><span className="debt-icon"><AlertCircle size={18}/></span><span className="debt-info"><strong>{d.label}</strong><small>Saldo pendiente declarado</small></span><strong>{money(d.amount_minor,currency)}</strong><button className="small-icon-btn" onClick={()=>removeDebt(d.id)} title="Eliminar deuda"><Trash2 size={17}/></button></div>)}</div>{debts.length===0&&<Empty title="No hay deudas registradas" detail="Puedes añadir saldos pendientes para descontarlos del patrimonio estimado."/>}</section>
  {modal&&<Modal title={modal==='account'?'Añadir cuenta':'Registrar deuda'} onClose={()=>setModal(null)}><form onSubmit={save} className="form-stack"><label className="field-label">{modal==='account'?'Nombre de la cuenta':'Descripción de la deuda'}<input required maxLength={70} value={name} onChange={e=>setName(e.target.value)} placeholder={modal==='account'?'Cuenta corriente, efectivo...':'Préstamo, tarjeta...'} autoFocus/></label><label className="field-label">{modal==='account'?'Saldo inicial':'Importe pendiente'} ({currency})<input required type="text" inputMode="decimal" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="0.00"/></label><p className="hint"><Wallet size={14}/> Los datos se guardan en SQLite en tu propio equipo.</p><Submit disabled={saving}>{saving?'Guardando…':'Guardar'}</Submit></form></Modal>}
+ {checking&&<Modal title={`Cuadrar «${checking.name}» con el extracto`} onClose={()=>{resetCheck();setChecking(null)}}><form onSubmit={reconcile} className="form-stack"><label className="field-label">Fecha del saldo del extracto<input required type="date" value={checkDate} onChange={e=>{setCheckDate(e.target.value);resetCheck()}}/></label><label className="field-label">Saldo que muestra el extracto ({checking.currency})<input required type="text" inputMode="decimal" value={checkBalance} onChange={e=>{setCheckBalance(e.target.value);resetCheck()}} placeholder="0.00" autoFocus/></label><p className="hint"><Scale size={14}/> Saldo inicial + movimientos hasta esa fecha, incluida. Solo consulta: no cambia nada.</p>
+  {check&&(check.matches?<div className="success-notice">Cuadra: la app también calcula {money(check.computed_minor,check.currency)} a {check.date}.</div>:<div className="form-error">No cuadra. Extracto: {money(check.statement_minor,check.currency)} · App: {money(check.computed_minor,check.currency)} · Diferencia: {check.difference_minor>0?'+':''}{money(check.difference_minor,check.currency)}</div>)}
+  {checkError&&<div className="form-error">{checkError}</div>}
+  <Submit>Comprobar</Submit></form></Modal>}
  </div>;
 }
