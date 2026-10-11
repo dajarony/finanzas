@@ -17,6 +17,14 @@ test('C2: currency symbols and spaces', () => amounts({
   '£1,234.56': '1234.56', '€ 12,50': '12.50', '1 234,56': '1234.56', '1 234,56 €': '1234.56', '+12.50': '12.50',
 }));
 
+test('manual amounts reject a symbol from another currency', () => {
+  assert.equal(normalizeAmount('£12.50', 'EUR'), null);
+  assert.equal(normalizeAmount('€12,50', 'GBP'), null);
+  assert.equal(normalizeAmount('$12.50', 'EUR'), null);
+  assert.equal(normalizeAmount('£12.50', 'GBP'), '12.50');
+  assert.equal(normalizeAmount('12,50', 'EUR'), '12.50');
+});
+
 test('C3: bank negatives in brackets or with a trailing minus', () => amounts({
   '(12.50)': '-12.50', '12,50-': '-12.50', '(1.234,56)': '-1234.56',
 }));

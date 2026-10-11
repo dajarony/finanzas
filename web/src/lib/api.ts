@@ -24,7 +24,7 @@ export const backend={
   dashboard:(c:Currency,m:string)=>api<Dashboard>(`dashboard?currency=${c}&month=${m}`),
   accounts:()=>api<Account[]>('accounts'),
   createAccount:(data:{name:string;currency:Currency;opening:string})=>api<Account>('accounts',{method:'POST',body:data}),
-  transactions:(c:Currency,search='')=>api<Transaction[]>(`transactions?currency=${c}&search=${encodeURIComponent(search)}`),
+  transactions:(c:Currency,search='',limit=101,offset=0)=>api<Transaction[]>(`transactions?${new URLSearchParams({currency:c,search,limit:String(limit),offset:String(offset)})}`),
   createTransaction:(data:{accountId:string;date:string;description:string;amount:string;category:string;note:string})=>api<Transaction>('transactions',{method:'POST',body:data}),
   deleteTransaction:(id:string)=>api<{ok:boolean}>(`transactions/${encodeURIComponent(id)}`,{method:'DELETE'}),
   budgets:(c:Currency,m:string)=>api<Budget[]>(`budgets?currency=${c}&month=${m}`),

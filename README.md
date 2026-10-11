@@ -18,7 +18,7 @@
   <img alt="React 19" src="https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white">
   <img alt="SQLite local" src="https://img.shields.io/badge/SQLite-local-0f80cc?logo=sqlite&logoColor=white">
-  <img alt="62 tests" src="https://img.shields.io/badge/tests-62%20en%20verde-2ea44f">
+  <img alt="65 tests" src="https://img.shields.io/badge/tests-65%20en%20verde-2ea44f">
   <img alt="Hecho con AURA Gauntlet" src="https://img.shields.io/badge/hecho%20con-AURA%20Gauntlet-35aae0">
 </p>
 
@@ -32,7 +32,7 @@
 | | Función | En una frase |
 |---|---|---|
 | 📊 | **Panel** | Saldo, ingresos y gastos del mes, patrimonio estimado, 6 meses de evolución y gasto por categoría. |
-| 💸 | **Movimientos** | Añadir ingresos y gastos, buscar, categorizar y borrar. |
+| 💸 | **Movimientos** | Añadir ingresos y gastos, buscar en todo el historial, cargar más registros, categorizar y borrar. |
 | 🏦 | **Cuentas** | Varias cuentas con saldo inicial; el saldo se calcula con sus movimientos. |
 | ⚖️ | **Cuadrar con el extracto** | Escribes el saldo de tu banco en una fecha y te dice si cuadra o cuánto se desvía. |
 | 🎯 | **Presupuestos** | Límite mensual por categoría y cuánto llevas gastado. |
@@ -75,7 +75,7 @@ Son las reglas que **ningún cambio puede romper** ([`AGENTS.md`](AGENTS.md)). C
 | Regla | Qué significa en la práctica |
 |---|---|
 | 🪙 **Céntimos enteros** | `12,50 €` se guarda como `1250`. Nunca coma flotante. |
-| 🚫 **EUR y GBP no se mezclan** | No se suman ni se convierten. Un `£12.50` en una cuenta EUR **se rechaza**, en el CSV y al cuadrar. |
+| 🚫 **EUR y GBP no se mezclan** | No se suman ni se convierten. Un `£12.50` en una cuenta EUR **se rechaza** al añadirlo a mano, en el CSV y al cuadrar. |
 | ❓ **Lo ambiguo se rechaza** | `1.234` puede ser mil doscientos o uno coma dos: no se adivina. |
 | 🧱 **Todo o nada** | Importar un lote o restaurar una copia: si una sola fila falla, no se escribe nada. |
 | 🛡️ **Tus datos son tuyos** | Quitar la demo nunca borra lo tuyo; si hay movimientos propios en sus cuentas, se bloquea y avisa. |
@@ -180,7 +180,7 @@ y abre **http://127.0.0.1:8787**.
 ## 🧪 Calidad
 
 ```bash
-npm test         # 62 tests: servidor, API y lógica CSV de la web
+npm test         # 65 tests: servidor, API y lógica CSV de la web
 npm run check    # tipos de TypeScript
 npm run build    # compilación de la web
 ```
@@ -235,7 +235,6 @@ Lo que encontraron los supervisores durante el plan, y quedó corregido con su t
 - **Conciliación limitada:** puedes comprobar a mano si una cuenta cuadra con tu extracto, pero la app no guarda conciliaciones, no ajusta saldos ni modela transferencias internas.
 - **CSV:** reconoce algunas cabeceras habituales; revisa siempre signos y columnas antes de importar. La deduplicación por lote no es una identidad bancaria universal: un extracto parcial reordenado puede requerir revisión manual.
 - **Restaurar solo en una app vacía:** no se fusiona ni se reemplaza nada.
-- **El alta manual de movimientos** todavía acepta un símbolo de otra moneda (`£` en una cuenta EUR); la importación CSV y el cuadre sí lo rechazan.
 - **Solo una persona y uso local.** **No hay login, HTTPS ni cifrado de base de datos.** No expongas el puerto a Internet. Solo escucha en localhost.
 - El backend usa `node:sqlite`, **experimental en Node 22**.
 - Fiscalidad ES/UK, previsiones, inversiones, sincronización y recordatorios están pendientes ([`docs/ROADMAP.md`](docs/ROADMAP.md)).
