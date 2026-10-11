@@ -33,3 +33,15 @@ test('identical legitimate bank movements within a statement are preserved',()=>
   let res=await call('/api/import','POST',payload);assert.deepEqual(await res.json(),{imported:2,skipped:0,total:2});
   res=await call('/api/import','POST',payload);assert.deepEqual(await res.json(),{imported:0,skipped:2,total:2});
 }));
+
+test('HTTP transaction search reaches older pages and validates the offset',()=>withServer(async base=>{
+  const call=(path,method='GET',body)=>fetch(base+path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
+  const account=await (await call('/api/accounts','POST',{name:'Banco',currency:'EUR',opening:'0.00'})).json();
+  for(let day=1;day<=3;day++) assert.equal((await call('/api/transactions','POST',{accountId:account.id,date:`2026-10-0${day}`,description:`Compra ${day}`,amount:'-1.00'})).status,201);
+  let res=await call('/api/transactions?currency=EUR&limit=2&offset=2');
+  assert.deepEqual((await res.json()).map(t=>t.description),['Compra 1']);
+  res=await call('/api/transactions?currency=EUR&search=Compra%201');
+  assert.deepEqual((await res.json()).map(t=>t.description),['Compra 1']);
+  res=await call('/api/transactions?offset=-1');
+  assert.equal(res.status,400);
+}));

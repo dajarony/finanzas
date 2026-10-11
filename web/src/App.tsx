@@ -20,6 +20,7 @@ export function App(){
  const [newTx,setNewTx]=useState(false);const [txType,setTxType]=useState<'expense'|'income'>('expense');const [txAccount,setTxAccount]=useState('');
  const [txDate,setTxDate]=useState(today());const [txDescription,setTxDescription]=useState('');const [txAmount,setTxAmount]=useState('');const [txCategory,setTxCategory]=useState('Alimentación');const [txNote,setTxNote]=useState('');const [txSaving,setTxSaving]=useState(false);
  const localAccounts=accounts.filter(a=>a.currency===currency);
+ const visibleData=data?.currency===currency&&data.month===month?data:null;
  function inform(text:string){setError(text);setSuccess('')}
  function changed(){setVersion(v=>v+1)}
  function selectTab(next:Tab){setTab(next);setMobileMenu(false)}
@@ -30,7 +31,7 @@ export function App(){
    return()=>{live=false};
  },[currency,month,version]);
  function openTx(){if(!localAccounts.length){inform(`Crea primero una cuenta en ${currency}.`);selectTab('accounts');return;}setTxAccount(localAccounts[0].id);setTxType('expense');setTxDate(today());setTxDescription('');setTxAmount('');setTxCategory('Alimentación');setTxNote('');setNewTx(true)}
- async function saveTx(e:React.FormEvent){e.preventDefault();const amt=normalizeAmount(txAmount);if(!amt||Number(amt)===0){inform('Introduce un importe válido, p. ej. 12.50.');return;}
+ async function saveTx(e:React.FormEvent){e.preventDefault();if(!localAccounts.some(a=>a.id===txAccount)){inform(`Selecciona una cuenta en ${currency}.`);return;}const amt=normalizeAmount(txAmount,currency);if(!amt||Number(amt)===0){inform(`Introduce un importe válido en ${currency}, sin símbolos de otra moneda.`);return;}
   const signed=(txType==='expense'?'-':'')+amt.replace(/^-/,'');setTxSaving(true);
   try{await backend.createTransaction({accountId:txAccount,date:txDate,description:txDescription,amount:signed,category:txCategory,note:txNote});setNewTx(false);changed();setSuccess('Movimiento guardado correctamente.');}catch(e){inform((e as Error).message)}finally{setTxSaving(false)}
  }
@@ -63,11 +64,11 @@ export function App(){
     {error&&<div className="flash flash-error" role="alert"><AlertCircle size={17}/><span>{error}</span><button onClick={()=>setError('')} aria-label="Cerrar"><X size={17}/></button></div>}
     {success&&<div className="flash flash-success" role="status"><CheckCircle2 size={17}/><span>{success}</span><button onClick={()=>setSuccess('')} aria-label="Cerrar"><X size={17}/></button></div>}
     {loading&&<div className="loading-indicator"><span className="spinner"/> Actualizando datos...</div>}
-    {tab==='overview'&&data&&<><Overview data={data} currency={currency} onNew={openTx} onTab={selectTab}/>{data.accounts.length===0&&<div className="onboarding"><div className="onboarding-decor"><Sun size={24}/></div><div><strong>¿Quieres ver cómo queda con datos?</strong><p>Carga una demostración ficticia o crea una cuenta real para empezar.</p></div><button className="btn btn-secondary" onClick={()=>void seed()}>Explorar demo <ArrowUpRight size={17}/></button></div>}{data.demo_count>0&&<div className="demo-clean"><button className="text-link" onClick={()=>void clearDemo()}>Eliminar datos ficticios</button></div>}</>}
-    {tab==='transactions'&&<Transactions currency={currency} version={version} onNew={openTx} onChange={changed} onError={inform}/>}
-    {tab==='budgets'&&<Budgets currency={currency} month={month} version={version} onChange={changed} onError={inform}/>}
-    {tab==='accounts'&&<Accounts currency={currency} version={version} onChange={changed} onError={inform}/>}
-    {tab==='import'&&<ImportCsv accounts={accounts} currency={currency} onChange={changed} onError={inform}/>}
+     {tab==='overview'&&visibleData&&<><Overview data={visibleData} currency={currency} onNew={openTx} onTab={selectTab}/>{visibleData.accounts.length===0&&<div className="onboarding"><div className="onboarding-decor"><Sun size={24}/></div><div><strong>¿Quieres ver cómo queda con datos?</strong><p>Carga una demostración ficticia o crea una cuenta real para empezar.</p></div><button className="btn btn-secondary" onClick={()=>void seed()}>Explorar demo <ArrowUpRight size={17}/></button></div>}{visibleData.demo_count>0&&<div className="demo-clean"><button className="text-link" onClick={()=>void clearDemo()}>Eliminar datos ficticios</button></div>}</>}
+     {tab==='transactions'&&<Transactions key={currency} currency={currency} version={version} onNew={openTx} onChange={changed} onError={inform}/>}
+     {tab==='budgets'&&<Budgets key={`${currency}-${month}`} currency={currency} month={month} version={version} onChange={changed} onError={inform}/>}
+     {tab==='accounts'&&<Accounts key={currency} currency={currency} version={version} onChange={changed} onError={inform}/>}
+     {tab==='import'&&<ImportCsv key={currency} accounts={accounts} currency={currency} onChange={changed} onError={inform}/>}
     <footer className="page-footer"><span><ShieldCheck size={14}/> Aura Finanzas · No sustituye asesoramiento fiscal ni financiero.</span><span>Hecho para España y Reino Unido <span className="country-flag">🇪🇸 🇬🇧</span></span></footer>
     </div>
   </main>

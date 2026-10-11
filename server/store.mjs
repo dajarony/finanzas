@@ -55,13 +55,19 @@ export function createStore(filepath) {
     return { a, d, description, amount, category, note };
   }
   function transactionResponse(t) { return { ...t, currency: t.currency, account_name: t.account_name }; }
-  function listTransactions({ c, m, search, limit = 500 }={}) {
+  function listTransactions({ c, m, search, limit = 500, offset = 0 }={}) {
+    const start = Number(offset);
+    if (!Number.isSafeInteger(start) || start < 0) throw validation('Desplazamiento de movimientos inválido');
     let sql = `SELECT t.*,a.currency,a.name account_name FROM transactions t JOIN accounts a ON a.id=t.account_id WHERE 1=1`;
     const params = [];
     if (c) { sql += ' AND a.currency=?'; params.push(currency(c)); }
     if (m) { sql += ' AND substr(t.date,1,7)=?'; params.push(month(m)); }
-    if (search) { sql += ' AND (lower(t.description) LIKE ? OR lower(t.category) LIKE ?)'; const s=`%${String(search).toLowerCase().slice(0,100)}%`;params.push(s,s); }
-    sql += ' ORDER BY t.date DESC,t.created_at DESC,t.id DESC LIMIT ?'; params.push(Math.min(1000,Math.max(1,Number(limit) || 500)));
+    if (search) {
+      sql += " AND (lower(t.description) LIKE ? ESCAPE '!' OR lower(t.category) LIKE ? ESCAPE '!' OR lower(a.name) LIKE ? ESCAPE '!')";
+      const s=`%${String(search).toLowerCase().slice(0,100).replace(/[!%_]/g,'!$&')}%`;
+      params.push(s,s,s);
+    }
+    sql += ' ORDER BY t.date DESC,t.created_at DESC,t.id DESC LIMIT ? OFFSET ?'; params.push(Math.min(1000,Math.max(1,Number(limit) || 500)),start);
     return q(sql,...params).map(transactionResponse);
   }
   function addTransaction(body, { origin='manual', externalKey=null }={}) {

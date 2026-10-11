@@ -12,9 +12,9 @@ export function monthLabel(v:string) {return new Date(`${v}-01T12:00:00`).toLoca
 export function percent(part:number,total:number) {return total?Math.min(100,Math.round((part/total)*100)):0;}
 // Amount as canonical text "-1234.56", or null when malformed, ambiguous ("1.234" may be 1234
 // or 1,234) or a negative zero.
-export function normalizeAmount(value:string):string|null {
+export function normalizeAmount(value:string,currency?:Currency):string|null {
   const a=parseAmount(value);
-  if(!a||(a.neg&&a.abs==='0.00'))return null;
+  if(!a||(a.neg&&a.abs==='0.00')||(currency&&a.symbol&&a.symbol!==({'EUR':'€','GBP':'£'} as const)[currency]))return null;
   return canonicalAmount(a);
 }
 export const canonicalAmount=(a:{neg:boolean;abs:string})=>(a.neg?'-':'')+a.abs;

@@ -30,6 +30,24 @@ test('EUR and GBP are separate, full balance and month sums are correct',()=>{
   } finally {store.close();}
 });
 
+test('transaction history can be paged and searched across all matching rows',()=>{
+  const store=createStore(':memory:');
+  try {
+    const eur=store.createAccount({name:'Cuenta especial',currency:'EUR',opening:'0.00'});
+    const gbp=store.createAccount({name:'Other bank',currency:'GBP',opening:'0.00'});
+    for(let day=1;day<=5;day++) store.addTransaction({accountId:eur.id,date:`2026-10-${String(day).padStart(2,'0')}`,description:`Compra ${day}`,amount:'-1.00'});
+    store.addTransaction({accountId:gbp.id,date:'2026-10-06',description:'Compra 6',amount:'-1.00'});
+    const first=store.listTransactions({c:'EUR',limit:2,offset:0});
+    const second=store.listTransactions({c:'EUR',limit:2,offset:2});
+    const third=store.listTransactions({c:'EUR',limit:2,offset:4});
+    assert.deepEqual([...first,...second,...third].map(t=>t.description),['Compra 5','Compra 4','Compra 3','Compra 2','Compra 1']);
+    assert.equal(store.listTransactions({c:'EUR',search:'especial'}).length,5);
+    assert.equal(store.listTransactions({c:'EUR',search:'%'}).length,0);
+    assert.throws(()=>store.listTransactions({offset:-1}),{status:400});
+    assert.throws(()=>store.listTransactions({offset:'1.5'}),{status:400});
+  } finally {store.close();}
+});
+
 test('import is idempotent and rejects entire invalid batches',()=>{
   const store=createStore(':memory:');
   try {
