@@ -17,10 +17,14 @@ export async function api<T>(path:string,opts?:{method?:string;body?:unknown}):P
   });
   let body:unknown;
   try {body=await res.json();}catch{throw new Error('El servidor no ha devuelto JSON. ¿Está iniciado?');}
-  if(!res.ok){const e=body as {error?:string};throw new Error(e?.error||`Error HTTP ${res.status}`);}
+  if(!res.ok){if(res.status===401&&!path.startsWith('auth/')&&typeof window!=='undefined')window.dispatchEvent(new Event('aura-session-expired'));const e=body as {error?:string};throw new Error(e?.error||`Error HTTP ${res.status}`);}
   return body as T;
 }
 export const backend={
+  authStatus:()=>api<{configured:boolean;legacy:boolean;orphaned:boolean;unlocked:boolean}>('auth/status'),
+  unlock:(passphrase:string)=>api<{configured:boolean;legacy:boolean;unlocked:boolean}>('auth/unlock',{method:'POST',body:{passphrase}}),
+  lock:()=>api<{ok:boolean}>('auth/lock',{method:'POST'}),
+  exportEncrypted:()=>api<unknown>('export',{method:'POST'}),
   dashboard:(c:Currency,m:string)=>api<Dashboard>(`dashboard?currency=${c}&month=${m}`),
   accounts:()=>api<Account[]>('accounts'),
   createAccount:(data:{name:string;currency:Currency;opening:string})=>api<Account>('accounts',{method:'POST',body:data}),
