@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/lib/csv.test.ts
+Tipo: Lógica
+Entradas: Casos de CSV conocidos
+Acciones: Comprobar reglas públicas del importador
+Salidas: Resultados de pruebas
+*/
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';

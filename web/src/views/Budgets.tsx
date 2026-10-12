@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/views/Budgets.tsx
+Tipo: Salida
+Entradas: Presupuestos de mes y divisa
+Acciones: Mostrar y editar límites
+Salidas: Vista React
+*/
 import {useEffect,useState} from 'react';
 import {Plus,Target} from 'lucide-react';
 import type {Currency,Budget} from '../types';

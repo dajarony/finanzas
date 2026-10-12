@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: server/index.mjs
+Tipo: Entrada
+Entradas: Configuración de arranque local
+Acciones: Iniciar el servidor en 127.0.0.1
+Salidas: Servidor HTTP local
+*/
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

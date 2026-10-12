@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/lib/api.ts
+Tipo: Entrada
+Entradas: Solicitudes de la interfaz
+Acciones: Traducir llamadas tipadas a HTTP local
+Salidas: Datos tipados o error
+*/
 import type {Account,Budget,Currency,Dashboard,Debt,Reconciliation,Transaction} from '../types';
 import {canonicalAmount,parseAmount} from './format.ts';
 // EUR and GBP are never converted: "$" or the other currency's symbol makes the balance invalid.

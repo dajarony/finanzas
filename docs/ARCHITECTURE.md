@@ -1,4 +1,4 @@
-# Arquitectura v0.1 — módulos con responsabilidad única
+# Arquitectura v0.1 — módulos por responsabilidad
 
 ## Propósito y límites
 
@@ -30,9 +30,10 @@ flowchart TD
 
 - `web/views` importan `web/lib/api`, `web/lib/format`, `web/components`, `web/types`.
 - `web/lib/api` no depende de vistas.
-- `server/app` no implementa operaciones contables; solo traduce HTTP al dominio.
-- `server/store` depende de `server/core` y SQLite; no importa código web.
-- `server/core` contiene funciones puras; no accede a archivos ni a la red.
+- `server/app` protege Host/Origin y sirve archivos; `server/routes` despacha la API; `server/http` lee y escribe JSON.
+- `server/store.mjs` abre SQLite y compone `server/store/{accounts,transactions,importer,budgets,debts,dashboard,reconcile,backup,demo}.mjs`.
+- Solo `server/store.mjs` y el árbol `server/store/` acceden a SQLite; no importan código web.
+- `server/core` valida reglas de dominio y no accede a archivos, SQLite ni red.
 
 ## Seguridad por defecto
 
@@ -42,13 +43,11 @@ flowchart TD
 - Validación de tamaño de mensaje (4 MiB), importación máxima 2.000 filas/lote, fechas e importes estrictos.
 - JSON sin interpolación SQL para campos de usuario; sentencias preparadas.
 - CSP y cabeceras defensivas en contenido de producción.
-- `server/vault.mjs` deriva una clave de la frase con scrypt, abre SQLite cifrado y emite sesiones HttpOnly de uso local. Las copias usan AES-256-GCM con sal e IV nuevos.
+- `server/vault.mjs` mantiene sesión y metadatos; `server/vault/crypto.mjs` deriva la clave con scrypt y cifra copias con AES-256-GCM; `server/vault/migration.mjs` conserva y verifica la base anterior. Las sesiones HTTP usan cookie HttpOnly.
 - La base original de una migración permanece en claro como archivo de recuperación hasta que la persona compruebe y retire esa copia.
 
 ## Integración SUME + STDG
 
-El [mapa global](../mapa-global/arquitectura.yaml) enlaza entradas, lógica, salidas y contratos con los módulos ejecutables existentes. El [oráculo ECA](../contratos/eca-oraculo.md) fija resultados observables. Las carpetas SUME son índices de responsabilidad y trazabilidad; no duplican módulos.
+El [mapa global](../mapa-global/arquitectura.yaml) enlaza cada ruta con entradas, controlador, lógica, contrato y salida reales. El [contrato HTTP](../contratos/http-api.md) fija la interfaz y el [oráculo ECA](../contratos/eca-oraculo.md) los resultados observables. Las carpetas SUME son índices; no duplican módulos. `npm run check:architecture` comprueba DOCBLOCKs, rutas y rutas de archivo.
 
-## Próxima refactorización
-
-Si el repo crece, separar `server/store.mjs` en **repositorios individuales** (`accounts`, `ledger`, `budgets`, `debts`, `importer`, `analytics`), todos tras interfaces/contratos estables. No introducir abstracciones sin duplicación real o necesidad de pruebas.
+La web mantiene `App.tsx` como composición de vistas; `features/auth/AccessGate.tsx` posee la sesión, `features/transactions/NewTransaction.tsx` el formulario de alta y `features/backup/BackupControls.tsx` la exportación/restauración. No introducir abstracciones sin necesidad demostrada.

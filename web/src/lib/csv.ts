@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/lib/csv.ts
+Tipo: Lógica
+Entradas: Archivo CSV y asignación de columnas
+Acciones: Interpretar y validar filas antes de importar
+Salidas: Vista previa y movimientos normalizados
+*/
 import Papa from 'papaparse';
 import type {Currency} from '../types';
 import {SYMBOL,canonicalAmount,normalizeDate,parseAmount} from './format.ts';

@@ -13,7 +13,8 @@
     "start": "node server/index.mjs",
     "test": "node --experimental-strip-types --test \"tests/*.test.mjs\" \"web/src/**/*.test.ts\"",
     "test:e2e": "playwright test",
-    "verify": "npm test && npm run check && npm run build && npm run test:e2e",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "verify": "npm run check:architecture && npm test && npm run check && npm run build && npm run test:e2e",
     "check": "tsc --noEmit"
   },
   "dependencies": {

@@ -1,8 +1,15 @@
-import { createHash, randomUUID } from 'node:crypto';
+/*
+SUME DOCBLOCK
+Nombre: server/core.mjs
+Tipo: Lógica
+Entradas: Campos financieros sin confianza
+Acciones: Validar divisas, importes, fechas y cadenas sin I/O
+Salidas: Valores normalizados o error de validación
+*/
+import { createHash } from 'node:crypto';
 
 export const CURRENCIES = new Set(['EUR', 'GBP']);
 export const EXPENSE_CATEGORIES = ['Vivienda', 'Alimentación', 'Transporte', 'Servicios', 'Salud', 'Educación', 'Ocio', 'Compras', 'Suscripciones', 'Impuestos', 'Otros'];
-export const INCOME_CATEGORIES = ['Salario', 'Prestaciones', 'Reembolsos', 'Intereses', 'Otros ingresos'];
 export const MAX_MINOR = 999999999999;
 export function parseCents(value, { zero = false } = {}) {
   // Accept decimal amounts ONLY as strings. Never round a binary floating-point number.
@@ -13,11 +20,6 @@ export function parseCents(value, { zero = false } = {}) {
   if (!Number.isSafeInteger(cents) || Math.abs(cents) > MAX_MINOR) throw validation('Importe fuera de rango');
   if (!zero && cents === 0) throw validation('El importe debe ser distinto de cero');
   return cents;
-}
-export function centsText(n) {
-  const sign = n < 0 ? '-' : '';
-  const nAbs = Math.abs(n);
-  return `${sign}${Math.floor(nAbs / 100)}.${String(nAbs % 100).padStart(2, '0')}`;
 }
 export function validation(message, status = 400) {
   const error = new Error(message); error.status = status; return error;
@@ -62,4 +64,3 @@ export function month(v) {
 export function signature(accountId, d, description, cents) {
   return createHash('sha256').update(JSON.stringify([accountId, d, description.trim().toLowerCase().replace(/\s+/g, ' '), cents])).digest('hex');
 }
-export { randomUUID };
