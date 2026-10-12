@@ -1,44 +1,257 @@
-# Mapa SUME + STDG de los módulos reales de Aura Finanzas.
+# Mapa SUME + STDG: rutas reales y módulos propietarios.
 system: aura-finanzas
 version: 0.1.0
 last_updated: 2026-10-12
 sume_version: "1.0"
 entrypoint: server/index.mjs
 routes:
-  - path: /api/auth/*
+  - path: /api/health
+    method: GET
     entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/routes.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/auth/status
+    method: GET
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
     logica: server/vault.mjs
-    salida: server/app.mjs
-    contrato: contratos/eca-oraculo.md
-  - path: /api/accounts, /api/transactions, /api/import
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/auth/unlock
+    method: POST
     entrada: server/app.mjs
-    logica: server/core.mjs, server/store.mjs
-    salida: server/app.mjs
-    contrato: contratos/eca-oraculo.md
-  - path: /api/dashboard, /api/budgets, /api/debts, /api/reconcile
+    controlador: server/routes.mjs
+    logica: server/vault.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/auth/lock
+    method: POST
     entrada: server/app.mjs
-    logica: server/store.mjs
-    salida: server/app.mjs
-    contrato: contratos/eca-oraculo.md
-  - path: /api/export, /api/restore
+    controlador: server/routes.mjs
+    logica: server/vault.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/dashboard
+    method: GET
     entrada: server/app.mjs
-    logica: server/store.mjs, server/vault.mjs
-    salida: server/app.mjs
-    contrato: contratos/eca-oraculo.md
+    controlador: server/routes.mjs
+    logica: server/store/dashboard.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/accounts
+    method: GET
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/accounts.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/accounts
+    method: POST
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/accounts.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/reconcile
+    method: GET
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/reconcile.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/transactions
+    method: GET
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/transactions.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/transactions
+    method: POST
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/transactions.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/transactions/:id
+    method: DELETE
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/transactions.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/import
+    method: POST
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/importer.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/budgets
+    method: GET
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/budgets.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/budgets
+    method: PUT
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/budgets.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/debts
+    method: GET
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/debts.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/debts
+    method: POST
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/debts.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/debts/:id
+    method: DELETE
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/debts.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/restore
+    method: POST
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/backup.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/demo
+    method: POST
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/demo.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/demo
+    method: DELETE
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/demo.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/export
+    method: GET
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/store/backup.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
+  - path: /api/export
+    method: POST
+    entrada: server/app.mjs
+    controlador: server/routes.mjs
+    logica: server/vault.mjs
+    contrato_entrada: contratos/http-api.md
+    contrato_salida: contratos/http-api.md
+    salida: server/http.mjs
 modules:
   - name: dominio
     file: server/core.mjs
     depends_on: []
+  - name: transporte
+    file: server/app.mjs
+    depends_on: [rutas, http]
+  - name: rutas
+    file: server/routes.mjs
+    depends_on: [almacen, privacidad, http]
+  - name: http
+    file: server/http.mjs
+    depends_on: [dominio]
   - name: almacen
     file: server/store.mjs
+    depends_on: [cuentas, movimientos, importador, presupuestos, deudas, panel, conciliacion, copias, demo]
+  - name: cuentas
+    file: server/store/accounts.mjs
     depends_on: [dominio]
+  - name: movimientos
+    file: server/store/transactions.mjs
+    depends_on: [dominio, cuentas]
+  - name: importador
+    file: server/store/importer.mjs
+    depends_on: [movimientos, cuentas]
+  - name: presupuestos
+    file: server/store/budgets.mjs
+    depends_on: [dominio]
+  - name: deudas
+    file: server/store/debts.mjs
+    depends_on: [dominio]
+  - name: panel
+    file: server/store/dashboard.mjs
+    depends_on: [cuentas, movimientos, presupuestos]
+  - name: conciliacion
+    file: server/store/reconcile.mjs
+    depends_on: [cuentas, movimientos]
+  - name: copias
+    file: server/store/backup.mjs
+    depends_on: [cuentas, dominio]
+  - name: demo
+    file: server/store/demo.mjs
+    depends_on: [cuentas, dominio]
   - name: privacidad
     file: server/vault.mjs
-    depends_on: [almacen]
+    depends_on: [almacen, cifrado, migracion]
+  - name: cifrado
+    file: server/vault/crypto.mjs
+    depends_on: [dominio]
+  - name: migracion
+    file: server/vault/migration.mjs
+    depends_on: [almacen, cifrado]
   - name: interfaz
     file: web/src/App.tsx
+    depends_on: [acceso, formulario-movimiento, copias-ui, api]
+  - name: acceso
+    file: web/src/features/auth/AccessGate.tsx
     depends_on: [api]
+  - name: formulario-movimiento
+    file: web/src/features/transactions/NewTransaction.tsx
+    depends_on: [api]
+  - name: copias-ui
+    file: web/src/features/backup/BackupControls.tsx
+    depends_on: [api]
+  - name: api
+    file: web/src/lib/api.ts
+    depends_on: []
 contracts:
+  - name: HTTP-local
+    file: contratos/http-api.md
+    used_by: [server/routes.mjs, web/src/lib/api.ts, tests/api.test.mjs]
   - name: ECA-oraculo
     file: contratos/eca-oraculo.md
     used_by: [tests/vault.test.mjs, tests/e2e/flows.spec.ts]

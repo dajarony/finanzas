@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/views/Accounts.tsx
+Tipo: Salida
+Entradas: Cuentas y deudas de una divisa
+Acciones: Mostrar y editar cuentas y deudas
+Salidas: Vista React
+*/
 import {useEffect,useRef,useState} from 'react';
 import {Plus,Landmark,Wallet,Trash2,AlertCircle,Scale} from 'lucide-react';
 import {backend,statementBalance} from '../lib/api';

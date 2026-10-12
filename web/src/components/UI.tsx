@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/components/UI.tsx
+Tipo: Salida
+Entradas: Datos y callbacks de presentación
+Acciones: Renderizar controles y tablas reutilizables
+Salidas: Elementos React
+*/
 import { useEffect,useRef,type ReactNode } from 'react';
 import { X,TrendingUp,TrendingDown,Wallet,ShieldCheck,ArrowRight } from 'lucide-react';
 import {money} from '../lib/format';

@@ -2,9 +2,11 @@
   "critics": ["gauntlet-logic", "gauntlet-code", "gauntlet-contract"],
   "breaker": {"same_defect": 5, "no_progress": 3},
   "gates": [
+    {"id": "architecture", "cmd": ["node", "--run", "check:architecture"], "timeout_s": 120},
     {"id": "test", "cmd": ["node", "--run", "test"], "timeout_s": 300},
     {"id": "check", "cmd": ["node", "--run", "check"], "timeout_s": 300},
-    {"id": "build", "cmd": ["node", "--run", "build"], "timeout_s": 600}
+    {"id": "build", "cmd": ["node", "--run", "build"], "timeout_s": 600},
+    {"id": "e2e", "cmd": ["node", "--run", "test:e2e"], "timeout_s": 600}
   ],
   "protected": [
     "tests/*",

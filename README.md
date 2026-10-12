@@ -179,6 +179,7 @@ y abre **http://127.0.0.1:8787**.
 ## 🧪 Calidad
 
 ```bash
+npm run check:architecture # DOCBLOCKs, rutas SUME y dependencias
 npm test         # servidor, seguridad, API y lógica CSV de la web
 npm run check    # tipos de TypeScript
 npm run build    # compilación de la web
@@ -187,7 +188,7 @@ npm run test:e2e # recorrido real en Chromium con base temporal
 npm run verify   # ejecuta todo el banco anterior
 ```
 
-El [CI de GitHub](.github/workflows/ci.yml) ejecuta tests, tipos, compilación y navegador en cada PR y en cada cambio de `main`.
+El [CI de GitHub](.github/workflows/ci.yml) ejecuta el gate arquitectónico, tests, tipos, compilación y navegador en cada PR y en cada cambio de `main`.
 
 | Archivo de tests | Qué protege |
 |---|---|
@@ -204,6 +205,10 @@ El [CI de GitHub](.github/workflows/ci.yml) ejecuta tests, tipos, compilación y
 ## 🛡️ Cómo se construye: AURA Gauntlet
 
 Las fases 1 a 4 se hicieron con **AURA Gauntlet**, un bucle en el que nada se da por bueno porque alguien diga que funciona: lo deciden un **script** y **tres supervisores** que no pueden tocar el código.
+
+Para los cambios nuevos, [sus gates](.gauntlet/gates.json) incluyen también
+arquitectura SUME y navegador. La [plantilla de PR](.github/pull_request_template.md)
+pide revisar responsabilidades, contratos y pruebas reales.
 
 ```mermaid
 flowchart TD
@@ -227,6 +232,17 @@ Lo que encontraron los supervisores durante el plan, y quedó corregido con su t
 - 🐛 Al cambiar de moneda en la vista, un extracto en **libras podía guardarse como euros**.
 - 🐛 Un presupuesto de la demo que el usuario editaba **se borraba sin avisar** al quitar la demo.
 - 🐛 Una copia editada a mano podía colar **fechas imposibles** o ids que la app no podría borrar después.
+
+---
+
+## 🧱 Flujo modular de desarrollo
+
+El [flujo de extremo a extremo](docs/DEVELOPMENT-FLOW.md) combina contratos
+Dajarony, SUME/STDG y ECA con diseño de módulos, diagnóstico, TDD y revisión
+de `skill2`. Las reglas inspiradas en Karpathy se aplican como disciplina de
+alcance y verificación, sin instalar skills duplicadas. Leer
+[`AGENTS.md`](AGENTS.md), [`STATUS.md`](STATUS.md), [`CONTEXT.md`](CONTEXT.md)
+y el [mapa](mapa-global/arquitectura.yaml) antes de una modificación estructural.
 
 ---
 
@@ -262,23 +278,28 @@ Lo que encontraron los supervisores durante el plan, y quedó corregido con su t
 
 ```text
 server/
-  core.mjs           → importes en céntimos, fechas, ids, validación (puro)
-  store.mjs          → SQLite: cuentas, movimientos, demo, copia, cuadre
-  vault.mjs          → frase de acceso, sesión local y copias cifradas
-  app.mjs            → rutas HTTP y servido estático
+  core.mjs           → importes en céntimos, fechas y validación sin I/O
+  store.mjs          → conexión SQLite, esquema y composición
+  store/             → cuentas, movimientos, importación, presupuestos, deudas, panel, conciliación, copias, demo
+  vault.mjs          → frase de acceso, sesión local y metadatos
+  vault/             → cifrado de copias y migración de bases anteriores
+  app.mjs            → seguridad HTTP y servido estático
+  routes.mjs         → despacho de rutas API
+  http.mjs           → lectura y respuesta JSON
   index.mjs          → arranque local en 127.0.0.1
 web/src/
-  App.tsx            → composición, navegación, exportar y restaurar
+  App.tsx            → composición, navegación y datos de las vistas
+  features/          → acceso, nuevo movimiento y copias
   views/             → Overview, Transactions, Budgets, Accounts, ImportCsv
   lib/csv.ts         → parseCsv, mapRows, cuenta de destino (puro y testeado)
   lib/format.ts      → importes, fechas y formato de moneda
   lib/api.ts         → cliente HTTP tipado
 tests/               → store, api, demo, restore, reconcile, vault, e2e
-entradas/, logica/, salidas/, contratos/ → índices y oráculo SUME
+entradas/, logica/, salidas/, contratos/ → índices y contratos SUME
 mapa-global/, cambios/ → trazabilidad STDG
 assets/              → banner 3D, mascota Aura y su generador
 .gauntlet/           → gates y contratos del plan F1–F4
-docs/                → ARCHITECTURE, ECA-SUME, ROADMAP, SECURITY
+docs/                → arquitectura, flujo, playbook, ECA, roadmap y seguridad
 ```
 
 ---

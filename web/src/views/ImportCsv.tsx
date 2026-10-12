@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/views/ImportCsv.tsx
+Tipo: Entrada
+Entradas: CSV local y cuenta destino
+Acciones: Mapear y confirmar la importación
+Salidas: Vista previa o lote enviado
+*/
 import {useMemo,useRef,useState} from 'react';
 import {UploadCloud,FileSpreadsheet,ShieldCheck,CheckCircle2,AlertTriangle} from 'lucide-react';
 import type {Account,Currency} from '../types';

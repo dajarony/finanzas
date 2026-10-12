@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/types.ts
+Tipo: Contrato
+Entradas: Datos de API y vistas
+Acciones: Definir tipos compartidos y categorías
+Salidas: Tipos y constantes de dominio
+*/
 export type Currency = 'EUR' | 'GBP';
 export type Account = { id:string; name:string; currency:Currency; opening_minor:number; balance_minor:number; created_at:string };
 export type Transaction = {id:string;account_id:string;account_name:string;currency:Currency;date:string;description:string;amount_minor:number;category:string;note:string;origin:string};

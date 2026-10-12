@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/views/Transactions.tsx
+Tipo: Salida
+Entradas: Movimientos paginados de una divisa
+Acciones: Buscar, paginar y solicitar borrado
+Salidas: Historial React
+*/
 import {useEffect,useRef,useState} from 'react';
 import {Search,Plus,RefreshCw} from 'lucide-react';
 import type {Currency,Transaction} from '../types';

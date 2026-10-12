@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/views/Overview.tsx
+Tipo: Salida
+Entradas: Resumen de mes y divisa
+Acciones: Presentar métricas y gráficos
+Salidas: Panel React
+*/
 import { useMemo } from 'react';
 import {BarChart,Bar,XAxis,YAxis,Tooltip,CartesianGrid,ResponsiveContainer,PieChart,Pie,Cell} from 'recharts';
 import {ArrowUpRight,ArrowRight,Plus,ChartNoAxesCombined} from 'lucide-react';

@@ -1,3 +1,11 @@
+/*
+SUME DOCBLOCK
+Nombre: web/src/lib/format.ts
+Tipo: Lógica
+Entradas: Importes, fechas y divisas
+Acciones: Formatear o normalizar valores para la interfaz
+Salidas: Texto de presentación o importe canónico
+*/
 import type {Currency} from '../types';
 export function money(cents:number, currency:Currency, digits=2) {
   return new Intl.NumberFormat(currency==='GBP'?'en-GB':'es-ES',{style:'currency',currency,minimumFractionDigits:digits,maximumFractionDigits:digits}).format(cents/100);

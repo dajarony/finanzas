@@ -1,0 +1,12 @@
+# SUME configuration for Aura Finanzas
+version: "1.0"
+strict_docblock: true
+auto_update_arquitectura: false
+require_change_log: true
+folders:
+  - entradas
+  - logica
+  - salidas
+  - contratos
+# El mapa se mantiene junto al cambio y scripts/check-architecture.mjs
+# comprueba rutas y DOCBLOCKs. No existe un generador automático.
